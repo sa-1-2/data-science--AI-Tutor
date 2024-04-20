@@ -1,3 +1,4 @@
 google-generativeai
 streamlit
 ipykernel
+python-dotenv
