@@ -2,6 +2,12 @@ import streamlit as st
 import google.generativeai as genai
 import base64
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
+genai.configure(api_key = os.getenv('GOOGLE_API_KEY'))
+
 st.set_page_config(
     page_title="Data Science Tutor",
     page_icon="images/tutorss.png",
@@ -9,9 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded")
 #st.image("images/tutor.jpg")
  
-
-API_KEY = "AIzaSyAD1ROM_WZ688-WIJ0Y7VNn4x6mWUZWqY0"
-genai.configure(api_key = API_KEY)
+#genai.configure(api_key = API_KEY)
 generation_config = {
         "temperature": 1,
         "top_p": 0.95,
