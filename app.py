@@ -15,58 +15,34 @@ st.set_page_config(
     initial_sidebar_state="expanded")
 #st.image("images/tutor.jpg")
  
-#genai.configure(api_key = API_KEY)
-generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 0,
-        "max_output_tokens": 8192
-        }
-
-safety_settings = [
-  {
-    "category": "HARM_CATEGORY_HARASSMENT",
-    "threshold": "BLOCK_ONLY_HIGH"
-  },
-  {
-    "category": "HARM_CATEGORY_HATE_SPEECH",
-    "threshold": "BLOCK_ONLY_HIGH"
-  },
-  {
-    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-    "threshold": "BLOCK_ONLY_HIGH"
-  },
-  {
-    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-    "threshold": "BLOCK_ONLY_HIGH"
-  },
-]
-model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
-                              generation_config=generation_config,
-                              safety_settings=safety_settings)  
-
-def get_gemini_response(question, prompt, model):
-    response = model.generate_content([prompt, question])
-    return response.text
-
-prompt = """ You are helpful AI, and expert in data science field
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-pro-latest",
+    system_instruction=""" You are helpful AI, and expert in data science field
 and Knows each and every topic regarding machine learning,
 deep learning, natural language processing, generative ai, bert, encoder-decoder architecture, statistics, probability,
 and every machine learning and deep learning algorithms with examples.
 You are a data science tutor who answers the question asked related to data science field
-"""
-
-
-
+""")
 
 st.header("Data Science - AI Tutor")
-question = st.text_input("Ask your question:", key='input')
 
-submit = st.button("Get Solution")
-if submit:
-    response = get_gemini_response(question, prompt, model)
-    st.write(response)
+if 'memory' not in st.session_state:
+    st.session_state['memory'] = []
 
+# Initializing the chat object
+chat = model.start_chat(history=st.session_state['memory'])
+
+for msg in chat.history:
+    st.chat_message(msg.role).write(msg.parts[0].text)
+
+user_prompt = st.chat_input()
+
+if user_prompt:
+    st.chat_message('user').write(user_prompt)
+    response = chat.send_message(user_prompt, stream=True)
+    response.resolve()
+    st.chat_message('ai').write(response.text, end='')
+    st.session_state['memory'] = chat.history
 ## Footer Follow code
 
 st.sidebar.image("images/tutor.jpg")
